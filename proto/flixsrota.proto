@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+package flixsrota;
+
+option go_package = "github.com/flixsrota/flixsrota/internal/grpc/pb";
+
+import "google/protobuf/timestamp.proto";
+
+// Video Processing Service
+service VideoProcessor {
+  // Process a video file with FFmpeg
+  rpc ProcessVideo(ProcessVideoRequest) returns (ProcessVideoResponse);
+  
+  // Get the status of a processing job
+  rpc GetJobStatus(GetJobStatusRequest) returns (GetJobStatusResponse);
+  
+  // Cancel a running job
+  rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
+  
+  // List all jobs with optional filtering
+  rpc ListJobs(ListJobsRequest) returns (ListJobsResponse);
+}
+
+// System Metrics Service
+service SystemMetrics {
+  // Get current system metrics
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+  
+  // Stream real-time metrics
+  rpc StreamMetrics(StreamMetricsRequest) returns (stream StreamMetricsResponse);
+}
+
+// ProcessVideoRequest contains the parameters for video processing
+message ProcessVideoRequest {
+  string input_path = 1;
+  string output_path = 2;
+  string ffmpeg_args = 3;
+  int32 priority = 4;
+  map<string, string> metadata = 5;
+  string storage_adapter = 6;
+  string queue_adapter = 7;
+}
+
+// ProcessVideoResponse contains the job ID and initial status
+message ProcessVideoResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+  string message = 3;
+}
+
+// GetJobStatusRequest to retrieve job status
+message GetJobStatusRequest {
+  string job_id = 1;
+}
+
+// GetJobStatusResponse contains detailed job information
+message GetJobStatusResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+  float progress = 3;
+  string output_path = 4;
+  string error_message = 5;
+  google.protobuf.Timestamp started_at = 6;
+  google.protobuf.Timestamp completed_at = 7;
+  map<string, string> metadata = 8;
+}
+
+// CancelJobRequest to cancel a running job
+message CancelJobRequest {
+  string job_id = 1;
+}
+
+// CancelJobResponse confirms job cancellation
+message CancelJobResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ListJobsRequest with filtering options
+message ListJobsRequest {
+  JobStatus status_filter = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+// ListJobsResponse contains a list of jobs
+message ListJobsResponse {
+  repeated JobInfo jobs = 1;
+  int32 total_count = 2;
+}
+
+// JobInfo contains summary information about a job
+message JobInfo {
+  string job_id = 1;
+  JobStatus status = 2;
+  float progress = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  string input_path = 6;
+  string output_path = 7;
+}
+
+// GetMetricsRequest for system metrics
+message GetMetricsRequest {
+  bool include_job_metrics = 1;
+  bool include_system_metrics = 2;
+}
+
+// GetMetricsResponse contains system and job metrics
+message GetMetricsResponse {
+  SystemMetrics system_metrics = 1;
+  JobMetrics job_metrics = 2;
+  QueueMetrics queue_metrics = 3;
+}
+
+// StreamMetricsRequest for real-time metrics streaming
+message StreamMetricsRequest {
+  int32 interval_seconds = 1;
+}
+
+// StreamMetricsResponse contains real-time metrics
+message StreamMetricsResponse {
+  GetMetricsResponse metrics = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// SystemMetrics contains system resource information
+message SystemMetrics {
+  double cpu_usage_percent = 1;
+  double memory_usage_percent = 2;
+  double disk_usage_percent = 3;
+  int64 total_memory_bytes = 4;
+  int64 available_memory_bytes = 5;
+  int64 total_disk_bytes = 6;
+  int64 available_disk_bytes = 7;
+  int32 active_worker_count = 8;
+  int32 max_worker_count = 9;
+}
+
+// JobMetrics contains job processing statistics
+message JobMetrics {
+  int32 total_jobs = 1;
+  int32 queued_jobs = 2;
+  int32 processing_jobs = 3;
+  int32 completed_jobs = 4;
+  int32 failed_jobs = 5;
+  int32 cancelled_jobs = 6;
+  double average_processing_time_seconds = 7;
+}
+
+// QueueMetrics contains queue performance information
+message QueueMetrics {
+  int32 queue_depth = 1;
+  double queue_throughput_jobs_per_second = 2;
+  double average_wait_time_seconds = 3;
+}
+
+// JobStatus represents the current state of a job
+enum JobStatus {
+  JOB_STATUS_UNSPECIFIED = 0;
+  JOB_STATUS_QUEUED = 1;
+  JOB_STATUS_PROCESSING = 2;
+  JOB_STATUS_COMPLETED = 3;
+  JOB_STATUS_FAILED = 4;
+  JOB_STATUS_CANCELLED = 5;
+} 
