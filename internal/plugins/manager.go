@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/flixsrota/flixsrota/internal/queue"
-	"github.com/flixsrota/flixsrota/internal/storage"
+	"github.com/nikhil0verma/flixsrota/internal/queue"
+	"github.com/nikhil0verma/flixsrota/internal/storage"
 	"go.uber.org/zap"
 )
 
@@ -175,13 +175,12 @@ func (pm *PluginManager) GetAvailableAdapters() map[string][]string {
 			"s3",
 			"gcs",
 			"azure",
-			"minio",
 		},
 	}
 }
 
 // GetAdapterDownloadURL returns the download URL for an adapter
 func (pm *PluginManager) GetAdapterDownloadURL(adapterType, adapterName string) string {
-	baseURL := "https://github.com/flixsrota/flixsrota-plugins/releases/latest/download"
+	baseURL := "https://github.com/nikhil0verma/flixsrota/releases/latest/download"
 	return fmt.Sprintf("%s/%s_%s_%s_%s.so", baseURL, adapterType, adapterName, runtime.GOOS, runtime.GOARCH)
 }

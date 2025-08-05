@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/flixsrota/flixsrota/internal/queue"
-	"github.com/flixsrota/flixsrota/internal/storage"
+	"github.com/nikhil0verma/flixsrota/internal/queue"
+	"github.com/nikhil0verma/flixsrota/internal/storage"
 	"go.uber.org/zap"
 )
 
@@ -48,7 +48,7 @@ func (w *Worker) Stop() {
 
 // ProcessJob processes a video processing job
 func (w *Worker) ProcessJob(job *queue.Job) {
-	w.logger.Info("Processing job", 
+	w.logger.Info("Processing job",
 		zap.String("job_id", job.ID),
 		zap.String("input_path", job.InputPath),
 		zap.String("output_path", job.OutputPath))
@@ -67,16 +67,16 @@ func (w *Worker) ProcessJob(job *queue.Job) {
 	// Execute FFmpeg command
 	err := w.executor.Execute(w.ctx, job)
 	if err != nil {
-		w.logger.Error("Failed to execute FFmpeg", 
-			zap.String("job_id", job.ID), 
+		w.logger.Error("Failed to execute FFmpeg",
+			zap.String("job_id", job.ID),
 			zap.Error(err))
-		
+
 		// Update job status to failed
 		job.Status = queue.JobStatusFailed
 		job.Error = err.Error()
 		now := time.Now()
 		job.CompletedAt = &now
-		
+
 		if updateErr := w.queue.UpdateJob(w.ctx, job); updateErr != nil {
 			w.logger.Error("Failed to update failed job", zap.Error(updateErr))
 		}
@@ -99,7 +99,7 @@ func (w *Worker) ProcessJob(job *queue.Job) {
 		w.logger.Error("Failed to acknowledge job", zap.Error(err))
 	}
 
-	w.logger.Info("Job completed successfully", 
+	w.logger.Info("Job completed successfully",
 		zap.String("job_id", job.ID),
 		zap.String("output_path", job.OutputPath))
-} 
+}

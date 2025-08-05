@@ -1,4 +1,4 @@
-module github.com/flixsrota/flixsrota
+module github.com/nikhil0verma/flixsrota
 
 go 1.21
 

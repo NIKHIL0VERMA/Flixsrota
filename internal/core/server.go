@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/flixsrota/flixsrota/internal/config"
-	"github.com/flixsrota/flixsrota/internal/queue"
-	"github.com/flixsrota/flixsrota/internal/storage"
+	"github.com/nikhil0verma/flixsrota/internal/config"
+	"github.com/nikhil0verma/flixsrota/internal/queue"
+	"github.com/nikhil0verma/flixsrota/internal/storage"
 	"go.uber.org/zap"
 	grpcstd "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

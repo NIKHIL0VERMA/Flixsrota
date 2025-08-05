@@ -15,7 +15,7 @@ Thank you for your interest in contributing to Flixsrota! This document provides
 
 1. **Fork and clone the repository:**
 ```bash
-git clone https://github.com/nikhil2003verma/flixsrota.git
+git clone https://github.com/nikhil0verma/flixsrota.git
 cd flixsrota
 ```
 
@@ -218,9 +218,9 @@ make release
 
 ## 📞 Getting Help
 
-- **Issues:** [GitHub Issues](https://github.com/flixsrota/flixsrota/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/flixsrota/flixsrota/discussions)
-- **Documentation:** [Wiki](https://github.com/flixsrota/flixsrota/wiki)
+- **Issues:** [GitHub Issues](https://github.com/nikhil0verma/flixsrota/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/nikhil0verma/flixsrota/discussions)
+- **Documentation:** [Wiki](https://github.com/nikhil0verma/flixsrota/wiki)
 
 ## 📄 License
 

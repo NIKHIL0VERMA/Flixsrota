@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/flixsrota/flixsrota/internal/config"
-	"github.com/flixsrota/flixsrota/internal/core"
+	"github.com/nikhil0verma/flixsrota/internal/config"
+	"github.com/nikhil0verma/flixsrota/internal/core"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -17,7 +17,6 @@ var (
 	// Version information
 	Version   = "dev"
 	BuildTime = "unknown"
-	GitCommit = "unknown"
 )
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 		Long: `Flixsrota is a modular, high-performance video processing backend service 
 that interfaces with FFmpeg using gRPC APIs. It supports pluggable queue and 
 storage systems and is designed to run as a backend service/daemon.`,
-		Version: fmt.Sprintf("%s (Built: %s, Commit: %s)", Version, BuildTime, GitCommit),
+		Version: fmt.Sprintf("%s (Built: %s)", Version, BuildTime),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Set log level
 			switch logLevel {

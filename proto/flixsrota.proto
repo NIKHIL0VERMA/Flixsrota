@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package flixsrota;
 
-option go_package = "github.com/flixsrota/flixsrota/internal/grpc/pb";
+option go_package = "github.com/nikhil0verma/flixsrota/internal/grpc/pb";
 
 import "google/protobuf/timestamp.proto";
 

@@ -92,27 +92,9 @@ type GCSStorageConfig struct {
 
 // FFmpegConfig contains FFmpeg execution settings
 type FFmpegConfig struct {
-	ExecutablePath string             `mapstructure:"executable_path" yaml:"executable_path"`
-	DefaultArgs    []string           `mapstructure:"default_args" yaml:"default_args"`
-	Presets        map[string]string  `mapstructure:"presets" yaml:"presets"`
-	Timeout        int                `mapstructure:"timeout" yaml:"timeout"`
-	Quality        VideoQualityConfig `mapstructure:"quality" yaml:"quality"`
-}
-
-// VideoQualityConfig contains video quality settings
-type VideoQualityConfig struct {
-	EnableQualityDetection bool                          `mapstructure:"enable_quality_detection" yaml:"enable_quality_detection"`
-	MaxQuality             string                        `mapstructure:"max_quality" yaml:"max_quality"`
-	SupportedResolutions   []string                      `mapstructure:"supported_resolutions" yaml:"supported_resolutions"`
-	QualityPresets         map[string]VideoQualityPreset `mapstructure:"quality_presets" yaml:"quality_presets"`
-}
-
-// VideoQualityPreset defines a video quality preset
-type VideoQualityPreset struct {
-	Resolution string `mapstructure:"resolution" yaml:"resolution"`
-	Bitrate    string `mapstructure:"bitrate" yaml:"bitrate"`
-	Codec      string `mapstructure:"codec" yaml:"codec"`
-	FFmpegArgs string `mapstructure:"ffmpeg_args" yaml:"ffmpeg_args"`
+	ExecutablePath string          `mapstructure:"executable_path" yaml:"executable_path"`
+	Timeout        int             `mapstructure:"timeout" yaml:"timeout"`
+	Qualities      map[string]bool `mapstructure:"qualities" yaml:"qualities"`
 }
 
 // WorkerConfig contains worker pool settings
@@ -165,22 +147,15 @@ func DefaultConfig() *Config {
 		},
 		FFmpeg: FFmpegConfig{
 			ExecutablePath: "ffmpeg",
-			DefaultArgs:    []string{"-y"},
-			Presets: map[string]string{
-				"h264": "-c:v libx264 -preset medium -crf 23",
-				"h265": "-c:v libx265 -preset medium -crf 28",
-				"webm": "-c:v libvpx-vp9 -crf 30 -b:v 0",
-			},
-			Timeout: 3600,
-			Quality: VideoQualityConfig{
-				EnableQualityDetection: false,
-				MaxQuality:             "1080p",
-				SupportedResolutions:   []string{"480p", "720p", "1080p"},
-				QualityPresets: map[string]VideoQualityPreset{
-					"480p":  {Resolution: "480p", Bitrate: "1000k", Codec: "h264", FFmpegArgs: "-c:v libx264 -preset medium -crf 28 -b:v 1000k"},
-					"720p":  {Resolution: "720p", Bitrate: "2000k", Codec: "h264", FFmpegArgs: "-c:v libx264 -preset medium -crf 28 -b:v 2000k"},
-					"1080p": {Resolution: "1080p", Bitrate: "4000k", Codec: "h264", FFmpegArgs: "-c:v libx264 -preset medium -crf 28 -b:v 4000k"},
-				},
+			Timeout:        3600,
+			Qualities: map[string]bool{
+				"360p":  true,
+				"480p":  true,
+				"720p":  true,
+				"1080p": false,
+				"2160p": false,
+				"4320p": false,
+				"8640p": false,
 			},
 		},
 		Worker: WorkerConfig{
@@ -318,10 +293,7 @@ func setDefaults(v *viper.Viper, cfg *Config) {
 	// FFmpeg defaults
 	v.SetDefault("ffmpeg.executable_path", cfg.FFmpeg.ExecutablePath)
 	v.SetDefault("ffmpeg.timeout", cfg.FFmpeg.Timeout)
-	v.SetDefault("ffmpeg.quality.enable_quality_detection", cfg.FFmpeg.Quality.EnableQualityDetection)
-	v.SetDefault("ffmpeg.quality.max_quality", cfg.FFmpeg.Quality.MaxQuality)
-	v.SetDefault("ffmpeg.quality.supported_resolutions", cfg.FFmpeg.Quality.SupportedResolutions)
-	v.SetDefault("ffmpeg.quality.quality_presets", cfg.FFmpeg.Quality.QualityPresets)
+	v.SetDefault("ffmpeg.qualities", cfg.FFmpeg.Qualities)
 
 	// Worker defaults
 	v.SetDefault("worker.min_workers", cfg.Worker.MinWorkers)

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flixsrota/flixsrota/internal/config"
-	"github.com/flixsrota/flixsrota/internal/queue"
+	"github.com/nikhil0verma/flixsrota/internal/config"
+	"github.com/nikhil0verma/flixsrota/internal/queue"
 	"go.uber.org/zap"
 )
 
@@ -72,18 +72,98 @@ func (fe *FFmpegExecutor) Execute(ctx context.Context, job *queue.Job) error {
 func (fe *FFmpegExecutor) buildFFmpegArgs(job *queue.Job) []string {
 	var args []string
 
-	// Add default arguments
-	args = append(args, fe.config.DefaultArgs...)
-
 	// Add input file
 	args = append(args, "-i", job.InputPath)
 
-	// Add custom FFmpeg arguments if provided
-	if job.FFmpegArgs != "" {
-		// Split arguments by space (simple parsing)
-		customArgs := strings.Fields(job.FFmpegArgs)
-		args = append(args, customArgs...)
+	// Build the filter_complex string dynamically
+	var filterComplexParts []string
+	var videoMapParts []string
+	var audioMapParts []string
+
+	// Keep track of the stream labels for video and audio (e.g., [v1out], [v2out], ...)
+	var videoStreamIndex int
+	// var audioStreamIndex int // TODO: handle audio stream
+
+	// Build the filter_complex part (for splitting and scaling)
+	for quality := range fe.config.Qualities {
+		if fe.config.Qualities[quality] { // Only process enabled qualities
+			// For each quality, add a split and scale
+			var resolution string
+			var bitrate string
+			switch quality {
+			case "360p":
+				resolution = "854x480"
+				bitrate = "1M"
+			case "480p":
+				resolution = "1280x720"
+				bitrate = "1.5M"
+			case "720p":
+				resolution = "1280x720"
+				bitrate = "3M"
+			case "1080p":
+				resolution = "1920x1080"
+				bitrate = "5M"
+			case "2K":
+				resolution = "2048x1080"
+				bitrate = "7M"
+			case "4K":
+				resolution = "3840x2160"
+				bitrate = "10M"
+			case "8K":
+				resolution = "7680x4320"
+				bitrate = "20M"
+			default:
+				// If an unknown quality is found, skip
+				continue
+			}
+
+			// Add scale filter for this quality
+			filterComplexParts = append(filterComplexParts,
+				fmt.Sprintf("[%d:v]scale=w=%s:h=%s[v%dout]", 0, resolution, resolution, videoStreamIndex),
+			)
+
+			// Add video mapping for this quality
+			videoMapParts = append(videoMapParts,
+				fmt.Sprintf("-map [v%dout] -c:v:%d libx264 -x264-params \"nal-hrd=cbr:force-cfr=1\" -b:v:%d %s -maxrate:v:%d %s -minrate:v:%d %s -bufsize:v:%d %s -preset slow -g 48 -sc_threshold 0 -keyint_min 48",
+					videoStreamIndex, videoStreamIndex, videoStreamIndex, bitrate, videoStreamIndex, bitrate, videoStreamIndex, bitrate, videoStreamIndex, bitrate),
+			)
+
+			// Increment the video stream index
+			videoStreamIndex++
+		}
 	}
+
+	// Add audio mappings (assuming you want to map the same audio for all streams)
+	audioMapParts = append(audioMapParts,
+		"-map a:0 -c:a:0 aac -b:a:0 96k -ac 2",
+		"-map a:0 -c:a:1 aac -b:a:1 96k -ac 2",
+		"-map a:0 -c:a:2 aac -b:a:2 48k -ac 2",
+	)
+
+	// Combine all parts together
+	if len(filterComplexParts) > 0 {
+		args = append(args, "-filter_complex")
+		args = append(args, strings.Join(filterComplexParts, "; ")+";")
+	}
+
+	// Add video mapping parts
+	args = append(args, videoMapParts...)
+
+	// Add audio mapping parts
+	args = append(args, audioMapParts...)
+
+	// HLS-specific options
+	args = append(args,
+		"-f hls",
+		"-hls_time 2",
+		"-hls_playlist_type vod",
+		"-hls_flags independent_segments",
+		"-hls_segment_type mpegts",
+		"-hls_segment_filename stream_%v/data%02d.ts",
+		"-master_pl_name srota.m3u8",
+		"-var_stream_map \"v:0,a:0 v:1,a:1 v:2,a:2 v:3,a:0 v:4,a:1 v:5,a:2 v:6,a:0 v:7,a:1\"",
+		"stream_%v.m3u8",
+	)
 
 	// Add output file
 	args = append(args, job.OutputPath)
@@ -98,10 +178,4 @@ func (fe *FFmpegExecutor) Validate() error {
 		return fmt.Errorf("FFmpeg not found or not executable: %w", err)
 	}
 	return nil
-}
-
-// GetPreset returns a preset configuration
-func (fe *FFmpegExecutor) GetPreset(name string) (string, bool) {
-	preset, exists := fe.config.Presets[name]
-	return preset, exists
 }

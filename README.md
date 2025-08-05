@@ -41,7 +41,7 @@ Download from [FFmpeg official website](https://ffmpeg.org/download.html#build-w
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/flixsrota/flixsrota.git
+git clone https://github.com/nikhil0verma/flixsrota.git
 cd flixsrota
 ```
 
@@ -415,9 +415,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/flixsrota/flixsrota/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/flixsrota/flixsrota/discussions)
-- **Documentation**: [Wiki](https://github.com/flixsrota/flixsrota/wiki)
+- **Issues**: [GitHub Issues](https://github.com/nikhil0verma/flixsrota/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nikhil0verma/flixsrota/discussions)
+- **Documentation**: [Wiki](https://github.com/nikhil0verma/flixsrota/wiki)
 
 ## 🗺 Roadmap
 
