@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/nikhil0verma/flixsrota/internal/queue"
-	"github.com/nikhil0verma/flixsrota/internal/storage"
+	"github.com/nikhil0verma/flixsrota/internal/plugins/queue"
+	"github.com/nikhil0verma/flixsrota/internal/plugins/storage"
 	"go.uber.org/zap"
 )
 

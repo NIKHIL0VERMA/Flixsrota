@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/nikhil0verma/flixsrota/internal/config"
-	"github.com/nikhil0verma/flixsrota/internal/queue"
+	"github.com/nikhil0verma/flixsrota/internal/plugins/queue"
 	"go.uber.org/zap"
 )
 

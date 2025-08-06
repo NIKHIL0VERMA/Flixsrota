@@ -7,7 +7,33 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
 )
+
+// promptQualities prompts for a list of video qualities
+func promptQualities(qualities []string, defaultSelected []string) map[string]bool {
+	selected := []string{}
+
+	prompt := &survey.MultiSelect{
+		Message: "Select video qualities (use ↑↓ arrows, space to toggle, enter to confirm):",
+		Options: qualities,
+		Default: defaultSelected,
+	}
+
+	survey.AskOne(prompt, &selected)
+
+	// Convert to map[string]bool
+	result := make(map[string]bool)
+	for _, q := range qualities {
+		result[q] = false
+	}
+	for _, sel := range selected {
+		result[sel] = true
+	}
+
+	return result
+}
 
 // RunWizard runs the interactive configuration wizard
 func RunWizard(configPath string) error {
@@ -84,17 +110,10 @@ func RunWizard(configPath string) error {
 	// Video Quality Configuration
 	fmt.Println("🎬 Video Quality Configuration")
 	fmt.Println("------------------------------")
-	enableQualityDetection := promptBool("Enable automatic quality detection", cfg.FFmpeg.Quality.EnableQualityDetection)
-	cfg.FFmpeg.Quality.EnableQualityDetection = enableQualityDetection
+	qualities := []string{"360p", "480p", "720p", "1080p", "2k", "4k", "8k"}
+	defaultSelected := []string{"360p", "480p", "720p"}
 
-	if enableQualityDetection {
-		maxQuality := promptChoice("Maximum output quality", []string{"480p", "720p", "1080p", "4k", "8k"}, cfg.FFmpeg.Quality.MaxQuality)
-		cfg.FFmpeg.Quality.MaxQuality = maxQuality
-
-		fmt.Println("Supported resolutions (comma-separated):")
-		supportedResolutions := promptString("Supported resolutions", strings.Join(cfg.FFmpeg.Quality.SupportedResolutions, ","))
-		cfg.FFmpeg.Quality.SupportedResolutions = strings.Split(supportedResolutions, ",")
-	}
+	cfg.FFmpeg.Qualities = promptQualities(qualities, defaultSelected)
 	fmt.Println()
 
 	// Worker Configuration
@@ -102,15 +121,6 @@ func RunWizard(configPath string) error {
 	fmt.Println("----------------------")
 	cfg.Worker.MinWorkers = promptInt("Minimum workers", cfg.Worker.MinWorkers)
 	cfg.Worker.MaxWorkers = promptInt("Maximum workers", cfg.Worker.MaxWorkers)
-	fmt.Println()
-
-	// Plugin Download Configuration
-	fmt.Println("🔌 Plugin Configuration")
-	fmt.Println("----------------------")
-	downloadPlugins := promptBool("Download required plugins automatically", true)
-	if downloadPlugins {
-		fmt.Println("Plugins will be downloaded on first run")
-	}
 	fmt.Println()
 
 	// Save configuration

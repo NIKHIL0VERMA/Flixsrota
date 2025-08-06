@@ -7,8 +7,8 @@ import (
 
 	pb "github.com/nikhil0verma/flixsrota/internal/grpc/pb"
 	"github.com/nikhil0verma/flixsrota/internal/metrics"
-	"github.com/nikhil0verma/flixsrota/internal/queue"
-	"github.com/nikhil0verma/flixsrota/internal/storage"
+	"github.com/nikhil0verma/flixsrota/internal/plugins/queue"
+	"github.com/nikhil0verma/flixsrota/internal/plugins/storage"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
